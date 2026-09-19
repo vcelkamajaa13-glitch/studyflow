@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="StudyFlow – bezplatná česká studijní aplikace">
+  <title>StudyFlow – Uč se chytře</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+:root{
+  --bg:#f4f5f8;--surface:#fff;--surface-soft:#f8f8fb;--text:#182033;
+  --muted:#8991a3;--line:#e9ebf1;--accent:#7568f6;--accent-soft:#efedff;
+  --navy:#171a2a;--navy2:#20243a;--green:#36b887;--red:#e76b75;
+  --shadow:0 10px 30px rgba(25,31,50,.06);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+button,input{font:inherit}button{cursor:pointer}
+.app-shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  width:248px;background:var(--navy);color:#aeb5c8;padding:18px 14px;
+  display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:30
+}
+.brand{display:flex;align-items:center;gap:11px;color:#fff;padding:7px 11px 30px}
+.brand-mark{
+  width:38px;height:38px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#9186ff,#6357e8);font-weight:850;
+  box-shadow:0 8px 20px rgba(117,104,246,.25)
+}
+.brand strong{display:block;font-size:15px;letter-spacing:-.01em}
+.brand span{display:block;font-size:10px;color:#798196;margin-top:2px}
+.sidebar-label{font-size:9px;letter-spacing:.13em;font-weight:800;color:#596178;padding:0 12px 8px}
+.sidebar nav{display:grid;gap:4px}
+.nav-item{
+  position:relative;border:0;background:transparent;color:#8f97aa;text-align:left;
+  padding:12px 13px;border-radius:11px;font-weight:650;display:flex;gap:12px;
+  align-items:center;font-size:13px;transition:.18s
+}
+.nav-item .nav-icon{width:22px;text-align:center;font-size:16px;opacity:.75}
+.nav-item:hover{background:#1d2133;color:#e9ebf5}
+.nav-item.active{background:#2b2f49;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.035)}
+.nav-item.active:before{
+  content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;
+  border-radius:0 4px 4px 0;background:#8d83ff
+}
+.nav-item.active .nav-icon{opacity:1;color:#a9a1ff}
+.sidebar-bottom{margin-top:auto}
+.mini-tip{background:#1d2233;border:1px solid #272c40;border-radius:13px;padding:12px;font-size:11px;line-height:1.45}
+.mini-tip b{color:#dce0ec}.mini-tip span{color:#788197}
+.reset-btn{margin:10px 0 0 10px;background:transparent;border:0;color:#626b80;font-size:10px}
+
+/* MAIN */
+.main{margin-left:248px;width:calc(100% - 248px);padding:0 42px 55px}
+.topbar{height:70px;display:flex;align-items:center;justify-content:flex-end}
+.top-actions{display:flex;align-items:center;gap:10px}
+.streak{background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:20px;font-size:12px;color:#616a7e}
+.avatar{height:34px;width:34px;border-radius:50%;display:grid;place-items:center;background:#ebe9ff;color:#5f54df;font-weight:800;font-size:12px}
+.menu-btn,.mobile-title{display:none}
+.page{display:none;max-width:1120px;margin:0 auto}.active-page{display:block}
+.eyebrow{font-size:10px;font-weight:850;letter-spacing:.13em;color:#8379ee;margin:0 0 6px}
+h1,h2,h3,p{margin-top:0}.muted{color:var(--muted);line-height:1.5}
+.hero{
+  background:linear-gradient(135deg,#202437,#30354c);color:#fff;border-radius:22px;
+  padding:30px 32px;display:flex;align-items:center;justify-content:space-between;
+  gap:25px;box-shadow:var(--shadow)
+}
+.hero h1{font-size:29px;letter-spacing:-.035em;margin-bottom:7px}
+.hero .eyebrow{color:#aaa3ff}.hero .muted{color:#aeb6c8;max-width:570px;font-size:13px}
+.primary{
+  border:0;background:var(--accent);color:#fff;padding:11px 16px;border-radius:10px;
+  font-weight:750;box-shadow:0 7px 18px rgba(117,104,246,.18);white-space:nowrap
+}
+.primary:hover{background:#6659ed}
+.secondary{border:1px solid var(--line);background:#fff;padding:10px 15px;border-radius:10px;font-weight:700}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin:16px 0}
+.stat-card,.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 16px rgba(25,31,50,.025)}
+.stat-card>span{display:block;color:var(--muted);font-size:11px}.stat-card strong{display:block;font-size:23px;margin:6px 0}.stat-card small{color:var(--muted);font-size:10px}
+.progress{height:6px;background:#eef0f4;border-radius:20px;overflow:hidden}.progress i,.bar i{display:block;height:100%;background:var(--accent);border-radius:20px}
+.two-col{display:grid;grid-template-columns:1.12fr .88fr;gap:16px}
+.panel-head{display:flex;justify-content:space-between;align-items:start;margin-bottom:9px}.panel h2{font-size:16px;margin:0 0 3px}.panel-head p{font-size:11px;margin:0}
+.pill{background:var(--accent-soft);color:#5d52dc;border-radius:20px;padding:5px 9px;font-size:10px;font-weight:800}
+.task{display:flex;align-items:center;gap:11px;padding:13px 0;border-top:1px solid var(--line)}
+.task>span{font-size:19px;color:#a5adbd}.task.done>span{color:var(--green)}.task div{flex:1}.task b,.task small,.weak b,.weak small{display:block}.task b{font-size:12px}.task small,.weak small{color:var(--muted);font-size:10px;margin-top:3px}
+.task em{font-style:normal;color:var(--green);font-size:10px;font-weight:750}.task button{border:0;background:var(--accent-soft);color:#5b50db;padding:7px 10px;border-radius:8px;font-weight:750;font-size:10px}
+.weak{display:flex;gap:11px;align-items:center;padding:10px 0}.ring{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#f4f5f8;font-size:9px;font-weight:800}.ring.low{color:var(--red)}.ring.mid{color:#c48a18}
+
+/* LIBRARY */
+.page-head{display:flex;align-items:end;justify-content:space-between;margin:19px 0 23px}.page-head h1{font-size:29px;letter-spacing:-.035em;margin-bottom:5px}.page-head .muted{font-size:12px;margin:0}
+.upload-btn{position:relative;overflow:hidden}.upload-zone{border:1.5px dashed #d9dce5;background:#fff;border-radius:17px;padding:30px;text-align:center}
+.upload-icon{width:45px;height:45px;margin:auto;border-radius:13px;background:var(--accent-soft);color:#6659ed;display:grid;place-items:center;font-size:21px}.upload-zone h2{font-size:16px;margin:11px 0 4px}.upload-zone p{color:var(--muted);font-size:11px;margin-bottom:14px}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:26px 0 12px}.section-title h2{font-size:16px}.section-title span{font-size:10px;color:var(--muted)}
+.subject-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.subject{background:#fff;border:1px solid var(--line);padding:15px;border-radius:14px;display:flex;align-items:center;gap:11px}.subject-icon{font-size:24px}.subject h3{margin:0;font-size:13px}.subject p{margin:3px 0 0;color:var(--muted);font-size:10px}.subject>span{margin-left:auto;font-weight:800;font-size:11px;color:#5b50db}
+.uploaded{margin-top:11px;background:#fff;border:1px solid var(--line);padding:12px 14px;border-radius:11px;display:flex;justify-content:space-between;font-size:12px}.uploaded small{color:var(--muted)}
+
+/* FLASHCARDS */
+.flash-wrap{max-width:720px;margin:10px auto}.flash-meta{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-bottom:9px}
+.flashcard{width:100%;min-height:330px;border:1px solid var(--line);background:#fff;border-radius:20px;box-shadow:var(--shadow);padding:45px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.card-label{font-size:9px;color:#776cff;font-weight:850;letter-spacing:.13em}.flashcard h2{font-size:25px;max-width:600px;line-height:1.32}.answer{display:none;color:#4f586b;max-width:560px;line-height:1.6;font-size:13px}.flashcard.revealed .answer{display:block}.flashcard.revealed h2{font-size:20px}.flashcard.revealed #tapHint{display:none}.flashcard small{color:#a0a7b5;font-size:10px}
+.rating{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.rating button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px;font-weight:750;font-size:11px}.rating small{color:var(--muted);font-weight:400}
+
+/* QUIZ */
+.quiz-box{max-width:760px;margin:auto;background:#fff;border:1px solid var(--line);border-radius:19px;padding:26px;box-shadow:var(--shadow)}.quiz-top{display:flex;justify-content:space-between;color:var(--muted);font-size:11px}.quiz-question{padding:36px 0 20px}.quiz-question p{color:#796df0;font-weight:850;font-size:11px}.quiz-question h2{font-size:23px;line-height:1.4}.answers{display:grid;gap:9px}.answers button{background:#fff;border:1px solid #dfe3ea;border-radius:11px;text-align:left;padding:13px;font-weight:650;font-size:12px}.answers button:hover{border-color:#aaa2ff;background:#faf9ff}.answers button.correct{border-color:#3bb78b;background:#effbf6}.answers button.wrong{border-color:#ed7b83;background:#fff2f3}.quiz-feedback{min-height:28px;margin-top:12px;font-weight:700;font-size:12px}.next-btn{float:right;margin-top:4px}
+
+/* PROGRESS */
+.progress-layout{display:grid;grid-template-columns:.8fr 1.2fr 1fr;gap:16px}.mastery-panel{text-align:center}.big-ring{width:165px;height:165px;border-radius:50%;margin:23px auto 13px;background:conic-gradient(var(--accent) 0 68%,#eceef4 68%);display:grid;place-items:center;position:relative}.big-ring:after{content:"";position:absolute;inset:13px;background:#fff;border-radius:50%}.big-ring span{position:relative;z-index:1;font-size:29px;font-weight:850}.bar-row{display:grid;grid-template-columns:90px 1fr 34px;gap:8px;align-items:center;margin:18px 0;font-size:11px}.bar{height:8px;background:#eef0f5;border-radius:20px}.concept{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:12px}.concept b{color:#df666d}
+
+@media(max-width:850px){
+  .sidebar{transform:translateX(-100%);transition:.2s;box-shadow:12px 0 35px rgba(0,0,0,.18)}.sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;width:100%;padding:0 16px 40px}.topbar{height:60px;justify-content:space-between}.menu-btn{display:block;border:1px solid var(--line);background:#fff;border-radius:9px;width:38px;height:38px}.mobile-title{display:block;font-weight:800;font-size:14px}
+  .hero{padding:24px;flex-direction:column;align-items:flex-start}.hero h1{font-size:26px}.stats-grid{grid-template-columns:repeat(2,1fr)}.two-col,.progress-layout{grid-template-columns:1fr}.subject-grid{grid-template-columns:1fr}
+  .page-head{align-items:flex-start;gap:13px;flex-direction:column}.page-head h1{font-size:27px}.flashcard{min-height:290px;padding:26px}.flashcard h2{font-size:22px}.rating{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:851px) and (max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}.subject-grid{grid-template-columns:1fr 1fr}.progress-layout{grid-template-columns:1fr 1fr}.progress-layout .mastery-panel{grid-column:span 2}}
+
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div><strong>StudyFlow</strong><span>Uč se chytře</span></div>
+      </div>
+      <div class="sidebar-label">MENU</div><nav>
+        <button class="nav-item active" data-page="dashboard"><span class="nav-icon">⌂</span><span>Přehled</span></button>
+        <button class="nav-item" data-page="library"><span class="nav-icon">▣</span><span>Knihovna</span></button>
+        <button class="nav-item" data-page="flashcards"><span class="nav-icon">◇</span><span>Kartičky</span></button>
+        <button class="nav-item" data-page="quiz"><span class="nav-icon">?</span><span>Kvíz</span></button>
+        <button class="nav-item" data-page="progress"><span class="nav-icon">◒</span><span>Pokrok</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="mini-tip">💡 <b>Tip</b><br><span>Krátké každodenní opakování funguje lépe než dlouhé učení jednou týdně.</span></div>
+        <button class="reset-btn" id="resetBtn">Obnovit ukázková data</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="menu-btn" id="menuBtn">☰</button>
+        <div class="mobile-title">StudyFlow</div>
+        <div class="top-actions"><span class="streak">🔥 <b id="streak">3</b> dny</span><span class="avatar">T</span></div>
+      </header>
+
+      <section id="dashboard" class="page active-page">
+        <div class="hero">
+          <div>
+            <p class="eyebrow">VÍTEJ ZPĚT</p>
+            <h1>Pokračuj ve studiu.</h1>
+            <p class="muted">Dnes stačí pár chytrých opakování. Tvůj pokrok se ukládá přímo v tomto zařízení.</p>
+          </div>
+          <button class="primary" data-page-link="flashcards">Začít opakovat →</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card"><span>Celkový pokrok</span><strong id="mastery">68 %</strong><div class="progress"><i id="masteryBar" style="width:68%"></i></div></div>
+          <div class="stat-card"><span>Dnes k opakování</span><strong id="dueCount">8</strong><small>kartiček</small></div>
+          <div class="stat-card"><span>Studijní série</span><strong><span id="dashStreak">3</span> 🔥</strong><small>dnů v řadě</small></div>
+          <div class="stat-card"><span>Dokončené kvízy</span><strong id="quizCount">2</strong><small>tento týden</small></div>
+        </div>
+
+        <div class="two-col">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Dnešní plán</h2><p class="muted">Malé kroky, velký rozdíl.</p></div><span class="pill">3 úkoly</span></div>
+            <div class="task done"><span>✓</span><div><b>Opakovat kartičky</b><small>8 kartiček · ~5 min</small></div><em>Hotovo</em></div>
+            <div class="task"><span>○</span><div><b>Kvíz: Biologie</b><small>10 otázek · ~8 min</small></div><button data-page-link="quiz">Spustit</button></div>
+            <div class="task"><span>○</span><div><b>Pročíst slabá místa</b><small>3 pojmy · ~6 min</small></div><button data-page-link="progress">Zobrazit</button></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Slabá místa</h2><p class="muted">Těmto pojmům věnuj pozornost.</p></div></div>
+            <div class="weak"><div class="ring low">42%</div><div><b>Fotosyntéza</b><small>Biologie · opakovat dnes</small></div></div>
+            <div class="weak"><div class="ring mid">55%</div><div><b>Mitóza</b><small>Biologie · opakovat zítra</small></div></div>
+            <div class="weak"><div class="ring mid">61%</div><div><b>Newtonovy zákony</b><small>Fyzika · opakovat za 2 dny</small></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="library" class="page">
+        <div class="page-head"><div><p class="eyebrow">MOJE MATERIÁLY</p><h1>Knihovna</h1><p class="muted">Tvoje předměty a studijní materiály.</p></div><label class="primary upload-btn">＋ Nahrát materiál<input id="fileInput" type="file" accept=".pdf,.txt,.md" multiple hidden></label></div>
+        <div class="upload-zone" id="dropZone"><div class="upload-icon">↑</div><h2>Přetáhni sem PDF nebo poznámky</h2><p>V této první verzi materiál uložíme lokálně. AI zpracování přidáme v další verzi.</p><button class="secondary" id="browseBtn">Vybrat soubor</button></div>
+        <div class="section-title"><h2>Moje předměty</h2><span id="materialCount">3 předměty</span></div>
+        <div class="subject-grid" id="subjectGrid">
+          <div class="subject"><div class="subject-icon">🧬</div><div><h3>Biologie</h3><p>12 lekcí · 48 kartiček</p></div><span>72%</span></div>
+          <div class="subject"><div class="subject-icon">⚛️</div><div><h3>Fyzika</h3><p>8 lekcí · 32 kartiček</p></div><span>61%</span></div>
+          <div class="subject"><div class="subject-icon">📐</div><div><h3>Matematika</h3><p>15 lekcí · 56 kartiček</p></div><span>68%</span></div>
+        </div>
+        <div id="uploadedList"></div>
+      </section>
+
+      <section id="flashcards" class="page">
+        <div class="page-head"><div><p class="eyebrow">AKTIVNÍ OPAKOVÁNÍ</p><h1>Kartičky</h1><p class="muted">Rozpomínej se dřív, než se podíváš na odpověď.</p></div><span class="pill">8 dnes</span></div>
+        <div class="flash-wrap">
+          <div class="flash-meta"><span id="cardNumber">1 / 8</span><span>Biologie</span></div>
+          <button class="flashcard" id="flashcard">
+            <span class="card-label">OTÁZKA</span><h2 id="cardQuestion">Co je hlavní funkcí mitochondrií?</h2><p id="cardAnswer" class="answer">Místo, kde probíhá převážná část buněčného dýchání a vzniká ATP.</p><small id="tapHint">Klepni pro zobrazení odpovědi</small>
+          </button>
+          <div class="rating" id="rating">
+            <button data-rating="again">Znovu<br><small>1 min</small></button>
+            <button data-rating="hard">Těžké<br><small>1 den</small></button>
+            <button data-rating="good">Dobře<br><small>4 dny</small></button>
+            <button data-rating="easy">Snadné<br><small>10 dní</small></button>
+          </div>
+        </div>
+      </section>
+
+      <section id="quiz" class="page">
+        <div class="page-head"><div><p class="eyebrow">ADAPTIVNÍ KVÍZ</p><h1>Biologie</h1><p class="muted">Otázky se přizpůsobí tvým odpovědím.</p></div></div>
+        <div class="quiz-box">
+          <div class="quiz-top"><span id="quizProgress">Otázka 1 z 5</span><span class="pill" id="difficulty">Střední</span></div>
+          <div class="quiz-question"><p>01</p><h2 id="quizQuestion">Ve které fázi mitózy se chromozomy řadí do středu buňky?</h2></div>
+          <div class="answers" id="answers">
+            <button data-correct="false">A) Profáze</button><button data-correct="true">B) Metafáze</button><button data-correct="false">C) Anafáze</button><button data-correct="false">D) Telofáze</button>
+          </div>
+          <div class="quiz-feedback" id="quizFeedback"></div>
+          <button class="primary next-btn" id="nextQuestion" disabled>Další otázka →</button>
+        </div>
+      </section>
+
+      <section id="progress" class="page">
+        <div class="page-head"><div><p class="eyebrow">TVŮJ POKROK</p><h1>Pokrok</h1><p class="muted">Znalosti rostou opakováním, ne pouhým čtením.</p></div></div>
+        <div class="progress-layout">
+          <div class="panel mastery-panel"><h2>Celkové zvládnutí</h2><div class="big-ring"><span id="bigMastery">68%</span></div><p class="muted">Pokrok napříč všemi předměty.</p></div>
+          <div class="panel"><h2>Podle předmětu</h2><div class="bar-row"><span>Biologie</span><div class="bar"><i style="width:72%"></i></div><b>72%</b></div><div class="bar-row"><span>Fyzika</span><div class="bar"><i style="width:61%"></i></div><b>61%</b></div><div class="bar-row"><span>Matematika</span><div class="bar"><i style="width:68%"></i></div><b>68%</b></div><div class="bar-row"><span>Angličtina</span><div class="bar"><i style="width:82%"></i></div><b>82%</b></div></div>
+          <div class="panel"><h2>Potřebuješ zopakovat</h2><div class="concept"><span>Fotosyntéza</span><b>42%</b></div><div class="concept"><span>Mitóza</span><b>55%</b></div><div class="concept"><span>Elektrické pole</span><b>58%</b></div><div class="concept"><span>Lineární funkce</span><b>63%</b></div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script>
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+
+const defaultData={streak:3,mastery:68,quizCount:2,uploaded:[]};
+let data=JSON.parse(localStorage.getItem("studyflow")||"null")||defaultData;
+function save(){localStorage.setItem("studyflow",JSON.stringify(data))}
+function updateStats(){
+  $("#streak").textContent=data.streak; $("#dashStreak").textContent=data.streak;
+  $("#mastery").textContent=data.mastery+" %"; $("#masteryBar").style.width=data.mastery+"%";
+  $("#bigMastery").textContent=data.mastery+"%"; $("#quizCount").textContent=data.quizCount;
+}
+function showPage(id){
+  $$(".page").forEach(p=>p.classList.remove("active-page"));
+  $("#"+id).classList.add("active-page");
+  $$(".nav-item").forEach(n=>n.classList.toggle("active",n.dataset.page===id));
+  $("#sidebar").classList.remove("open");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+$$(".nav-item").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+$$("[data-page-link]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.pageLink)));
+$("#menuBtn").addEventListener("click",()=>$("#sidebar").classList.toggle("open"));
+
+const cards=[
+ ["Co je hlavní funkcí mitochondrií?","Místo, kde probíhá převážná část buněčného dýchání a vzniká ATP."],
+ ["Co potřebuje rostlina k fotosyntéze?","Světlo, vodu a oxid uhličitý; výsledkem je mimo jiné glukóza a kyslík."],
+ ["Co je DNA?","Molekula nesoucí genetickou informaci organismu."],
+ ["K čemu slouží ribozomy?","K syntéze bílkovin podle informace přenesené z RNA."],
+ ["Kolik dceřiných buněk vzniká mitózou?","Dvě geneticky velmi podobné dceřiné buňky."],
+ ["Co je ATP?","Energeticky bohatá molekula, která slouží jako hlavní přenašeč energie v buňce."],
+ ["Co je ekosystém?","Společenstvo organismů spolu s neživými podmínkami prostředí, se kterými interaguje."],
+ ["Co znamená homeostáza?","Udržování relativně stabilních vnitřních podmínek organismu."]
+];
+let cardIndex=0, revealed=false;
+function renderCard(){
+  $("#cardNumber").textContent=(cardIndex+1)+" / "+cards.length;
+  $("#cardQuestion").textContent=cards[cardIndex][0];
+  $("#cardAnswer").textContent=cards[cardIndex][1];
+  $("#flashcard").classList.remove("revealed"); revealed=false;
+}
+$("#flashcard").addEventListener("click",()=>{revealed=!revealed;$("#flashcard").classList.toggle("revealed",revealed)});
+$$(".rating button").forEach(b=>b.addEventListener("click",()=>{
+  if(!revealed)return;
+  cardIndex=(cardIndex+1)%cards.length; data.mastery=Math.min(100,data.mastery+(b.dataset.rating==="easy"?2:1)); save(); updateStats(); renderCard();
+}));
+
+const quiz=[
+ {q:"Ve které fázi mitózy se chromozomy řadí do středu buňky?",a:["Profáze","Metafáze","Anafáze","Telofáze"],c:1},
+ {q:"Která organela je hlavním místem buněčného dýchání?",a:["Ribozom","Mitochondrie","Jádro","Lysozom"],c:1},
+ {q:"Co je produktem fotosyntézy?",a:["Glukóza a kyslík","Dusík a voda","ATP a dusík","Bílkoviny a CO₂"],c:0},
+ {q:"Kolik chromozomů má běžná lidská tělní buňka?",a:["23","44","46","48"],c:2},
+ {q:"Kde je u eukaryotické buňky uložena většina DNA?",a:["V ribozomech","V buněčné stěně","V jádře","V cytoplazmě"],c:2}
+];
+let qi=0, answered=false;
+function renderQuiz(){
+  const q=quiz[qi]; $("#quizProgress").textContent=`Otázka ${qi+1} z ${quiz.length}`;
+  $("#quizQuestion").textContent=q.q; $("#difficulty").textContent=qi<2?"Střední":qi<4?"Těžší":"Výzva";
+  $("#answers").innerHTML=q.a.map((x,i)=>`<button data-i="${i}">${String.fromCharCode(65+i)}) ${x}</button>`).join("");
+  $("#quizFeedback").textContent=""; $("#nextQuestion").disabled=true; answered=false;
+  $$("#answers button").forEach(b=>b.addEventListener("click",()=>answerQuiz(+b.dataset.i)));
+}
+function answerQuiz(i){
+  if(answered)return; answered=true; const q=quiz[qi], btns=$$("#answers button");
+  btns.forEach((b,n)=>{if(n===q.c)b.classList.add("correct"); if(n===i&&i!==q.c)b.classList.add("wrong")});
+  $("#quizFeedback").textContent=i===q.c?"✓ Správně! Zvládnutí se zvýšilo.":"✕ Ještě ne. Správná odpověď je "+q.a[q.c]+".";
+  data.mastery=Math.max(0,Math.min(100,data.mastery+(i===q.c?2:-1))); save(); updateStats(); $("#nextQuestion").disabled=false;
+}
+$("#nextQuestion").addEventListener("click",()=>{qi=(qi+1)%quiz.length;renderQuiz()});
+
+function renderUploads(){
+  const box=$("#uploadedList"); box.innerHTML="";
+  data.uploaded.forEach(name=>{const d=document.createElement("div");d.className="uploaded";d.innerHTML=`<span>📄 ${name}</span><small>Uloženo v tomto zařízení</small>`;box.appendChild(d)});
+  if(data.uploaded.length)$("#materialCount").textContent=(3+data.uploaded.length)+" materiály";
+}
+function handleFiles(files){
+  [...files].forEach(f=>{if(!data.uploaded.includes(f.name))data.uploaded.push(f.name)});
+  save();renderUploads();
+}
+$("#fileInput").addEventListener("change",e=>handleFiles(e.target.files));
+$("#browseBtn").addEventListener("click",()=>$("#fileInput").click());
+const dz=$("#dropZone");["dragenter","dragover"].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.style.borderColor="#8b82ff"}));
+["dragleave","drop"].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.style.borderColor="#d8dce5"}));
+dz.addEventListener("drop",e=>handleFiles(e.dataTransfer.files));
+$("#resetBtn").addEventListener("click",()=>{localStorage.removeItem("studyflow");data=JSON.parse(JSON.stringify(defaultData));updateStats();renderUploads();renderCard();renderQuiz()});
+
+updateStats();renderUploads();renderCard();renderQuiz();
+
+
+</script>
+</body>
+</html>
